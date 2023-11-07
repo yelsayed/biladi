@@ -1,32 +1,48 @@
-import { DOMMessage, DOMMessageTypes, DOMMessageResponse } from '../types';
+import {DOMMessage, DOMMessageTypes, DOMMessageResponse} from '../types';
+import Cross from "../icons/cross";
 
 /**
- * @param {String} HTML representing a single element
+ * @param {string} html representing a single element
  * @return {Element}
  */
 const htmlToElement = (html: string) => {
-    var template = document.createElement('template');
-    html = html.trim(); // Never return a text node of whitespace as the result
-    template.innerHTML = html;
-    return template.content.firstChild;
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild;
 }
 
-const showWarningToast = () => {
-  console.log("Showing Warning Toast");
+const concatDescription = (description?: string) => {
+  if (!description) return "";
+  // If description is more than 130 characters, truncate it and add ellipsis
+  if (description.length > 130) {
+    return  description.substring(0, 130) + "...";
+  }
+  return description;
+}
+
+const showWarningToast = (name?: string, description?: string) => {
   // If there is already a toast, don't show another one
   if (document.getElementById("warningToast")) return;
+  description = concatDescription(description);
 
   const element = htmlToElement(`
       <div class="toast" id="warningToast">
       <div class="__info">
-        <div class="__icon--bad">X</div>
-        <h5 class="__title">
-          This site supports Israel.
-        </h5>
+        ${Cross}
+        <div>
+          <h5 class="__title">
+            ${name || "This site"} supports Israel.
+          </h5>
+          ${description && `
+            <p class="__subtitle">
+              ${description}.
+            </p>
+          `}
+        </div>
       </div>
       <div class="__cta">
-        <button id="dismiss">Dismiss</button>
-        <button id="viewMore">View More</button>
+        <button id="dismiss">&#10005;</button>
       </div>
     </div>
   `);
@@ -37,15 +53,25 @@ const showWarningToast = () => {
     position: fixed;
     top: 12px;
     right: 12px;
+    color: black;
     border: 2px solid #d73e3e;
     width: 500px;
     display: flex;
     flex-direction: row;
     border-radius: 8px;
-    font-family: "Open Sans";
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     justify-content: space-between;
     align-items: center;
     background: white;
+    z-index: 100000000000;
+  }
+  .toast svg {
+    flex-basis: 50px;
+    min-width: 50px;
   }
   .toast .__info {
     padding: 15px;
@@ -58,6 +84,12 @@ const showWarningToast = () => {
     font-weight: 600;
     font-size: 18px;
   }
+  .toast .__info .__subtitle {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1.5;
+    margin: 2px 0 0;
+  }
   .toast .__info .__icon--bad {
     background: #f7d8d8;
     font-size: 32px;
@@ -68,34 +100,24 @@ const showWarningToast = () => {
     text-align: center;
     color: #d73e3e;
   }
-  .toast .__cta {
-    display: flex;
-    height: 80px;
-    flex-direction: column;
-    justify-content: center;
-  }
   .toast .__cta button {
     flex: 1;
-    background: #f8f8f8;
-    border: 1px solid #ededed;
+    color: #2a2a2a;
+    background: none;
+    border: none;
     cursor: pointer;
     transition: all 0.1s ease;
-    font-size: 12px;
+    font-size: 22px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
   }
   .toast .__cta button:hover {
-    background: #ffffff;
+    color: #929292;
   }
   .toast .__cta button:active {
-    background: #dfdfdf;
+    background: #2A2A2A;
   }
-  .toast .__cta button:first-child {
-    border-top-right-radius: 8px;
-    border-bottom: 0;
-  }
-  .toast .__cta button:last-child {
-    border-bottom-right-radius: 8px;
-  }
-  
   
   </style>
   `);
@@ -108,38 +130,16 @@ const showWarningToast = () => {
   dismissButton?.addEventListener("click", () => {
     document.getElementById("warningToast")?.remove();
   });
-
-  const viewMoreButton = document.getElementById("viewMore");
-  viewMoreButton?.addEventListener("click", () => {
-    document.getElementById("warningToast")?.remove();
-    // Open the chrome extension popup
-    chrome.action.openPopup();
-  });
 };
 
-// Function called when a new message is received
-const messagesFromReactAppListener = (
-  msg: DOMMessage,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response: DOMMessageResponse) => void) => {
-
-  if (msg.type === DOMMessageTypes.LANDED_ON_BLOCKED_SITE) {
-    showWarningToast();
-  }
-
-  const headlines = Array.from(document.getElementsByTagName<"h1">("h1"))
-    .map(h1 => h1.innerText);
-
-  // Prepare the response object with information about the site
-  const response: DOMMessageResponse = {
-    title: document.title,
-    headlines
-  };
-
-  sendResponse(response);
-}
-
 /**
-* Fired when a message is sent from either an extension process or a content script.
-*/
-chrome.runtime.onMessage.addListener(messagesFromReactAppListener);
+ * Fired when a message is sent from either an extension process or a content script.
+ */
+// chrome.runtime.onMessage.addListener(messagesFromReactAppListener);
+chrome.runtime.sendMessage({
+  type: DOMMessageTypes.FETCH_DOMAIN_INFO,
+}).then((response) => {
+  if (response && response.type === DOMMessageTypes.LANDED_ON_BLOCKED_SITE) {
+    showWarningToast(response.siteName, response.description);
+  }
+});
