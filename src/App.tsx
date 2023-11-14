@@ -39,7 +39,8 @@ function App() {
       currentWindow: true
     }, async (tabs) => {
       setIsLoading(true);
-      setDomainInfo(await fetchBlockInformation(tabs[0].url || ''));
+      const [domain, ] = await fetchBlockInformation(tabs[0].url || '');
+      setDomainInfo(domain);
       setIsLoading(false);
     });
   }, [currentUrl]);

@@ -27,7 +27,7 @@ const showWarningToast = (name?: string, description?: string) => {
   description = concatDescription(description);
 
   const element = htmlToElement(`
-      <div class="toast" id="warningToast">
+      <div class="qaate3-toast" id="warningToast">
       <div class="__info">
         ${Cross}
         <div>
@@ -49,7 +49,7 @@ const showWarningToast = (name?: string, description?: string) => {
 
   const stylesheet = htmlToElement(`
   <style>
-  .toast {
+  .qaate3-toast {
     position: fixed;
     top: 12px;
     right: 12px;
@@ -69,28 +69,28 @@ const showWarningToast = (name?: string, description?: string) => {
     background: white;
     z-index: 100000000000;
   }
-  .toast svg {
+  .qaate3-toast svg {
     flex-basis: 50px;
     min-width: 50px;
   }
-  .toast .__info {
+  .qaate3-toast .__info {
     padding: 15px;
     display: flex;
     gap: 10px;
     align-items: center;
   }
-  .toast .__info .__title {
+  .qaate3-toast .__info .__title {
     margin: 0;
     font-weight: 600;
     font-size: 18px;
   }
-  .toast .__info .__subtitle {
+  .qaate3-toast .__info .__subtitle {
     font-size: 12px;
     font-weight: 300;
     line-height: 1.5;
     margin: 2px 0 0;
   }
-  .toast .__info .__icon--bad {
+  .qaate3-toast .__info .__icon--bad {
     background: #f7d8d8;
     font-size: 32px;
     width: 50px;
@@ -100,7 +100,7 @@ const showWarningToast = (name?: string, description?: string) => {
     text-align: center;
     color: #d73e3e;
   }
-  .toast .__cta button {
+  .qaate3-toast .__cta button {
     flex: 1;
     color: #2a2a2a;
     background: none;
@@ -112,10 +112,10 @@ const showWarningToast = (name?: string, description?: string) => {
     top: 5px;
     right: 5px;
   }
-  .toast .__cta button:hover {
+  .qaate3-toast .__cta button:hover {
     color: #929292;
   }
-  .toast .__cta button:active {
+  .qaate3-toast .__cta button:active {
     background: #2A2A2A;
   }
   
