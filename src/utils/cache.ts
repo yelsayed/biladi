@@ -1,16 +1,16 @@
-import { DomainInfoCacheItem } from "../types";
+import { BrandInfoCacheItem } from "../types";
 
 const DEFAULT_TTL = 60 * 60 * 1000; // 1 hour
 
 class DomainCache {
-  private cache: { [key: string]: DomainInfoCacheItem } = {};
+  private cache: { [key: string]: BrandInfoCacheItem } = {};
   private ttl: number = DEFAULT_TTL;
 
   DomainCache(_ttl?: number) {
     this.ttl = _ttl || this.ttl;
   }
 
-  public get(key: string): DomainInfoCacheItem | undefined {
+  public get(key: string): BrandInfoCacheItem | undefined {
     const domain = this.cache[key];
 
     if (domain && domain.timestamp) {
@@ -24,7 +24,7 @@ class DomainCache {
     return domain;
   }
 
-  public set(key: string, value: DomainInfoCacheItem): void {
+  public set(key: string, value: BrandInfoCacheItem): void {
     this.cache[key] = value;
   }
 

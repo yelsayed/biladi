@@ -1,9 +1,9 @@
 import ky from "ky";
 import domainCache from "./cache";
-import {DomainInfo} from "../types";
-import {getDomainWithoutSuffix} from "tldts";
+import { BrandInfo, BulkBrandInfo } from "../types";
+import { getDomainWithoutSuffix } from "tldts";
 
-const BASE_URL = "https://8k5qjp8wea.execute-api.us-east-2.amazonaws.com/domains";
+const BASE_URL = "https://99vw6f1om9.execute-api.us-east-2.amazonaws.com";
 
 /**
  * Will get the top level domain from the current window location. Will also parse out anything past the first
@@ -21,14 +21,12 @@ export const getTLDFromCurrentSite = (currentSite: string) => {
 /**
  * Will check if the current site is blocked
  * @param {string} href - The URL of the current site
- * @returns {[DomainInfo, boolean]} - Will return the domain info and whether it was retrieved from the cache
+ * @returns {[BrandInfo, boolean]} - Will return the domain info and whether it was retrieved from the cache
  */
-export const fetchBlockInformation = async (href: string | undefined): Promise<[DomainInfo| undefined, boolean]> => {
+export const fetchDomainInformation = async (href: string | undefined): Promise<[BrandInfo| undefined, boolean]> => {
   if (!href) return [undefined, false];
 
   const domain = getTLDFromCurrentSite(href);
-
-  console.log(domain);
 
   // This should not be unknown
   const result = domainCache.get(domain);
@@ -42,7 +40,7 @@ export const fetchBlockInformation = async (href: string | undefined): Promise<[
   }
 
   // Use ky to make the request
-  const resp = await ky.get(`${BASE_URL}/${domain}`, {
+  const resp = await ky.get(`${BASE_URL}/?brand=${domain}`, {
     throwHttpErrors: false
   });
 
@@ -56,7 +54,7 @@ export const fetchBlockInformation = async (href: string | undefined): Promise<[
     return [undefined, false];
   }
 
-  const domainInfo = await resp.json() as DomainInfo;
+  const domainInfo = await resp.json() as BrandInfo;
 
   domainCache.set(domain, {
     "status": resp.status,
@@ -67,4 +65,31 @@ export const fetchBlockInformation = async (href: string | undefined): Promise<[
 
   // If the response is 200, then the site is blocked
   return [domainInfo, false];
+}
+
+export const bulkFetchBrandInformation = async (brandNames: string[]) => {
+  const searchParams = new URLSearchParams();
+  brandNames.forEach((brandName) => {
+    searchParams.append("brand", brandName);
+  });
+
+  const resp = await ky.get(`${BASE_URL}/brand/batch?${searchParams.toString()}`);
+
+  const brandInfo = await resp.json() as BulkBrandInfo;
+
+  console.log("resp from api gateway: ");
+  console.dir(resp);
+  console.log("brandInfo from api gateway: ", brandInfo);
+
+  return brandInfo;
+}
+/**
+ * @param {string} html representing a single element
+ * @return {Element}
+ */
+export const htmlToElement = (html: string): Node => {
+  const template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild as Node;
 }

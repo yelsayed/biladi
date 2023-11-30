@@ -5,7 +5,8 @@ module.exports = {
                 ...webpackConfig,
                 entry: {
                     main: [env === 'development' && require.resolve('react-dev-utils/webpackHotDevClient'),paths.appIndexJs].filter(Boolean),
-                    content: './src/chromeServices/contentScripts.ts',
+                    siteScripts: './src/chromeServices/siteScripts.ts',
+                    amazonScripts: './src/chromeServices/amazonScripts.ts',
                     background: './src/chromeServices/background.ts'
                 },
                 output: {

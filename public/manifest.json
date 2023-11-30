@@ -1,6 +1,6 @@
 {
-  "name": "Qaata3",
-  "description": "Boycott evil organizations",
+  "name": "Biladi",
+  "description": "Boycott organizations that are against human rights",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
@@ -18,7 +18,16 @@
       ],
       "all_frames": true,
       "js": [
-        "static/js/content.js"
+        "static/js/siteScripts.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://www.amazon.com/*"
+      ],
+      "all_frames": true,
+      "js": [
+        "static/js/amazonScripts.js"
       ]
     }
   ],

@@ -1,8 +1,13 @@
-import {DomainInfo, DOMMessage, DOMMessageTypes} from '../types/';
-import {fetchBlockInformation} from "../utils";
+import { BrandInfo, DOMMessage, DOMMessageTypes } from '../types/';
+import { bulkFetchBrandInformation, fetchDomainInformation } from "../utils";
 import Tab = chrome.tabs.Tab;
 
-const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => async (blockedSiteTuple?: [DomainInfo| undefined, boolean]) => {
+/**
+ * Will be called when the user lands on a blocked site.
+ * @param tabInfo
+ * @param sendResponse
+ */
+const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => async (blockedSiteTuple?: [BrandInfo| undefined, boolean]) => {
   const [blockedSite, fromCache] = blockedSiteTuple || [undefined, false];
 
   if (blockedSite) {
@@ -23,9 +28,30 @@ const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => asy
 }
 
 chrome.runtime.onMessage.addListener(function (msg: DOMMessage, sender, sendResponse) {
-  if (msg.type !== DOMMessageTypes.FETCH_DOMAIN_INFO) return true;
-  const senderTabUrl = sender.tab?.url;
+  if (msg.type === DOMMessageTypes.FETCH_DOMAIN_INFO) {
+    const senderTabUrl = sender.tab?.url;
+    fetchDomainInformation(senderTabUrl).then(blockedSiteCallback(sender.tab, sendResponse));
+  }
 
-  fetchBlockInformation(senderTabUrl).then(blockedSiteCallback(sender.tab, sendResponse));
+  if (msg.type === DOMMessageTypes.FETCH_BRAND_INFO) {
+    console.log("fetching brand info");
+    console.log("msg", msg);
+    if (!msg.brandNames) return;
+
+    bulkFetchBrandInformation(msg.brandNames).then((response) => {
+      console.log("background is sending response: ", response);
+      sendResponse(response);
+    });
+  }
   return true;
 });
+
+chrome.tabs.onUpdated.addListener(
+  function(tabId, changeInfo, tab) {
+    if (changeInfo.url) {
+      chrome.tabs.sendMessage( tabId, {
+        type: DOMMessageTypes.URL_CHANGED,
+      })
+    }
+  }
+);

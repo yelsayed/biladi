@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {fetchBlockInformation} from "./utils";
+import {fetchDomainInformation} from "./utils";
 import styled from "styled-components";
 import "./Global.css";
-import {DomainInfo} from "./types";
+import {BrandInfo} from "./types";
 
 const Container = styled.div`
   text-align: center;
@@ -31,7 +31,7 @@ const Container = styled.div`
 function App() {
   const currentUrl = window.location.href;
   const [isLoading, setIsLoading] = useState(false);
-  const [domainInfo, setDomainInfo] = useState<DomainInfo | undefined>();
+  const [domainInfo, setDomainInfo] = useState<BrandInfo | undefined>();
 
   useEffect(() => {
     chrome.tabs && chrome.tabs.query({
@@ -39,7 +39,7 @@ function App() {
       currentWindow: true
     }, async (tabs) => {
       setIsLoading(true);
-      const [domain, ] = await fetchBlockInformation(tabs[0].url || '');
+      const [domain, ] = await fetchDomainInformation(tabs[0].url || '');
       setDomainInfo(domain);
       setIsLoading(false);
     });
