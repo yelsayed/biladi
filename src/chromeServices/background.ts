@@ -30,6 +30,7 @@ const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => asy
 chrome.runtime.onMessage.addListener(function (msg: DOMMessage, sender, sendResponse) {
   if (msg.type === DOMMessageTypes.FETCH_DOMAIN_INFO) {
     const senderTabUrl = sender.tab?.url;
+    console.log("recieved request to fetch domain info", senderTabUrl);
     fetchDomainInformation(senderTabUrl).then(blockedSiteCallback(sender.tab, sendResponse));
   }
 

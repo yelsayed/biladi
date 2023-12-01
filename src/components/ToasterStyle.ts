@@ -3,15 +3,13 @@ import { htmlToElement } from "../utils";
 const ToasterStyle = () => (
   htmlToElement(`
     <style>
-      .qaate3-toast {
+      .biladi-toast {
         position: fixed;
         top: 12px;
         right: 12px;
         color: black;
         border: 2px solid #d73e3e;
         width: 500px;
-        display: flex;
-        flex-direction: row;
         border-radius: 8px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
           'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -23,28 +21,32 @@ const ToasterStyle = () => (
         background: white;
         z-index: 100000000000;
       }
-      .qaate3-toast svg {
-        flex-basis: 50px;
-        min-width: 50px;
+      .biladi-toast .__banner {
+        width: 100%;
+        text-align: center;
+        padding: 15px 0;
+        line-height: 1;
       }
-      .qaate3-toast .__info {
-        padding: 15px;
-        display: flex;
-        gap: 10px;
-        align-items: center;
+      .biladi-toast .__banner svg {
+        width: 60px;
+        height: 26px;
+        display: inline;
       }
-      .qaate3-toast .__info .__title {
+      .biladi-toast .__info {
+        padding: 0 15px 15px;
+      }
+      .biladi-toast .__info .__title {
         margin: 0;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 18px;
       }
-      .qaate3-toast .__subtitle {
-        font-size: 12px;
-        font-weight: 300;
+      .biladi-toast .__subtitle {
+        font-size: 16px;
+        font-weight: 400;
         line-height: 1.5;
         margin: 2px 0 0;
       }
-      .qaate3-toast .__info .__icon--bad {
+      .biladi-toast .__info .__icon--bad {
         background: #f7d8d8;
         font-size: 32px;
         width: 50px;
@@ -54,8 +56,8 @@ const ToasterStyle = () => (
         text-align: center;
         color: #d73e3e;
       }
-      .qaate3-toast .__cta button {
-        flex: 1;
+      .biladi-toast .__cta button {
+        line-height: 1;
         color: #2a2a2a;
         background: none;
         border: none;
@@ -66,10 +68,10 @@ const ToasterStyle = () => (
         top: 5px;
         right: 5px;
       }
-      .qaate3-toast .__cta button:hover {
+      .biladi-toast .__cta button:hover {
         color: #929292;
       }
-      .qaate3-toast .__cta button:active {
+      .biladi-toast .__cta button:active {
         background: #2A2A2A;
       }
     </style>

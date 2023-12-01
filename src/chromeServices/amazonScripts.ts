@@ -1,10 +1,11 @@
 import { BulkBrandInfo, DOMMessage, DOMMessageTypes } from '../types';
-import { htmlToElement } from "../utils";
+import Banner from "../components/Banner";
+import BannerStyle from "../components/BannerStyle";
 
 let observer: MutationObserver;
 const OBSERVER_CONFIG = { attributes: true, childList: true, characterData: true, subtree: true };
 
-type BrandDomMap = Record<string, Element>;
+type BrandDomMap = Record<string, Element[]>;
 
 const getBrandsFromDOM = () => {
   const elements = document.getElementsByClassName("template=SEARCH_RESULTS");
@@ -18,8 +19,11 @@ const getBrandsFromDOM = () => {
     if (!brandElement) return;
 
     const brandName = brandElement.innerHTML.toLowerCase();
-
-    brandElementMap[brandName] = e;
+    if (brandElementMap[brandName]) {
+      brandElementMap[brandName].push(e);
+    } else {
+      brandElementMap[brandName] = [e];
+    }
   });
 
   if (Object.keys(brandElementMap).length === 0) return;
@@ -32,14 +36,19 @@ const getBrandsFromDOM = () => {
  * @param brandDomMap - A map of brand names to DOM elements
  */
 const setBoycottDivs = (brandDomMap: BrandDomMap, brandBoycottData: BulkBrandInfo) => {
-  Object.entries(brandDomMap).forEach(([brandName, brandDom]) => {
+  const styles = BannerStyle();
+  document.head.appendChild(styles);
+
+  Object.entries(brandDomMap).forEach(([brandName, brandDomElements]) => {
     const uuid = brandBoycottData.accessKeys[brandName];
     if (!uuid) return;
 
-    const brandInfo = brandBoycottData.brands[uuid];
-    const addendum = htmlToElement(`<div id="boot-1224">hello there, kenobi! ${brandInfo.domain}</div>`)
-    brandDom.setAttribute("style", "background-color: red;position: relative;");
-    brandDom.appendChild(addendum);
+    brandDomElements.forEach((brandDomElement) => {
+      const brandInfo = brandBoycottData.brands[uuid];
+      const addendum = Banner({ brandName: brandInfo.name });
+      brandDomElement.setAttribute("style", "position: relative;");
+      brandDomElement.appendChild(addendum);
+    });
   })
 }
 

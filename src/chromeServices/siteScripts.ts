@@ -14,9 +14,9 @@ const concatDescription = (description?: string) => {
 const showWarningToast = (name?: string, description?: string) => {
   // If there is already a toast, don't show another one
   if (document.getElementById("warningToast")) return;
-  description = concatDescription(description);
+  // description = concatDescription(description);
 
-  document.body.appendChild(Toaster({name, description}));
+  document.body.appendChild(Toaster({name, description: description || ""}));
   document.head.appendChild(ToasterStyle());
 
   // Add event listeners to the buttons
@@ -33,6 +33,7 @@ const showWarningToast = (name?: string, description?: string) => {
 chrome.runtime.sendMessage({
   type: DOMMessageTypes.FETCH_DOMAIN_INFO,
 }).then((response) => {
+  console.log("response from blocked sites: ", response);
   if (response && response.type === DOMMessageTypes.LANDED_ON_BLOCKED_SITE) {
     showWarningToast(response.siteName, response.description);
   }

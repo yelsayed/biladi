@@ -40,7 +40,7 @@ export const fetchDomainInformation = async (href: string | undefined): Promise<
   }
 
   // Use ky to make the request
-  const resp = await ky.get(`${BASE_URL}/?brand=${domain}`, {
+  const resp = await ky.get(`${BASE_URL}/brand?brand=${domain}`, {
     throwHttpErrors: false
   });
 
