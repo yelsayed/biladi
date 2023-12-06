@@ -30,17 +30,15 @@ const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => asy
 chrome.runtime.onMessage.addListener(function (msg: DOMMessage, sender, sendResponse) {
   if (msg.type === DOMMessageTypes.FETCH_DOMAIN_INFO) {
     const senderTabUrl = sender.tab?.url;
-    console.log("recieved request to fetch domain info", senderTabUrl);
     fetchDomainInformation(senderTabUrl).then(blockedSiteCallback(sender.tab, sendResponse));
   }
 
   if (msg.type === DOMMessageTypes.FETCH_BRAND_INFO) {
-    console.log("fetching brand info");
-    console.log("msg", msg);
     if (!msg.brandNames) return;
 
+    console.log("fetching brand info", msg.brandNames);
     bulkFetchBrandInformation(msg.brandNames).then((response) => {
-      console.log("background is sending response: ", response);
+      console.log("response from bulk fetch", response);
       sendResponse(response);
     });
   }

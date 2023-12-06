@@ -30,9 +30,16 @@ export type BulkBrandInfo = {
     brands: Record<string, BrandInfo>
 }
 
-export type BrandInfoCacheItem = {
+export type DomainCacheItem = {
     status: number;
     blocked: boolean;
     timestamp: string;  // ISO 8601
+    fromCache?: boolean;
     body: BrandInfo | undefined;  // if blocked is true, then this will be defined
+}
+
+export type BrandCacheItem = {
+    timestamp: string;  // ISO 8601
+    fromCache?: boolean;
+    body: BrandInfo | undefined;
 }

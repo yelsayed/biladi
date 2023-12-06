@@ -33,7 +33,6 @@ const showWarningToast = (name?: string, description?: string) => {
 chrome.runtime.sendMessage({
   type: DOMMessageTypes.FETCH_DOMAIN_INFO,
 }).then((response) => {
-  console.log("response from blocked sites: ", response);
   if (response && response.type === DOMMessageTypes.LANDED_ON_BLOCKED_SITE) {
     showWarningToast(response.siteName, response.description);
   }

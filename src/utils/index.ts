@@ -1,5 +1,5 @@
 import ky from "ky";
-import domainCache from "./cache";
+import { brandCache, domainCache } from "./cache";
 import { BrandInfo, BulkBrandInfo } from "../types";
 import { getDomainWithoutSuffix } from "tldts";
 
@@ -69,20 +69,72 @@ export const fetchDomainInformation = async (href: string | undefined): Promise<
 
 export const bulkFetchBrandInformation = async (brandNames: string[]) => {
   const searchParams = new URLSearchParams();
+  const fromCache: BulkBrandInfo = {
+    accessKeys: {},
+    brands: {}
+  };
+
+
   brandNames.forEach((brandName) => {
+    if (!brandName) return;
+
+    const brandInfo = brandCache.get(brandName);
+
+
+    if (brandInfo) {
+      const brandId = brandInfo?.body?.id || "";
+      fromCache.accessKeys[brandName] = brandId;
+      fromCache.brands[brandId] = brandCache.get(brandName)?.body as BrandInfo;
+      return;
+    }
+
     searchParams.append("brand", brandName);
   });
+
+
+  if (searchParams.toString() === "") {
+    return fromCache;
+  }
 
   const resp = await ky.get(`${BASE_URL}/brand/batch?${searchParams.toString()}`);
 
   const brandInfo = await resp.json() as BulkBrandInfo;
 
-  console.log("resp from api gateway: ");
-  console.dir(resp);
-  console.log("brandInfo from api gateway: ", brandInfo);
 
-  return brandInfo;
+  // Set in the cache the hits
+  if (brandInfo.accessKeys) {
+    Object.entries(brandInfo.accessKeys).forEach(([key, uuid]) => {
+      brandCache.set(key, {
+        "body": brandInfo.brands[uuid],
+        "timestamp": new Date().toISOString()
+      });
+    });
+  }
+
+  // Set in the cache the misses as undefined
+  brandNames.forEach((brandName) => {
+    if (!brandName) return;
+
+    if ((!brandInfo.accessKeys || !brandInfo.accessKeys[brandName]) && !brandCache.get(brandName)) {
+      brandCache.set(brandName, {
+        "body": undefined,
+        "timestamp": new Date().toISOString()
+      });
+    }
+  });
+
+  return {
+    accessKeys: {
+      ...fromCache.accessKeys,
+      ...brandInfo.accessKeys
+    },
+    brands: {
+      ...fromCache.brands,
+      ...brandInfo.brands
+    }
+  };
 }
+
 /**
  * @param {string} html representing a single element
  * @return {Element}

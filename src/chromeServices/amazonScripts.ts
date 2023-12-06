@@ -2,12 +2,41 @@ import { BulkBrandInfo, DOMMessage, DOMMessageTypes } from '../types';
 import Banner from "../components/Banner";
 import BannerStyle from "../components/BannerStyle";
 
+
 let observer: MutationObserver;
 const OBSERVER_CONFIG = { attributes: true, childList: true, characterData: true, subtree: true };
 
 type BrandDomMap = Record<string, Element[]>;
 
-const getBrandsFromDOM = () => {
+const getBrandsFromKeepShoppingDOM = () => {
+  const elements = document.getElementsByClassName("a-carousel-card");
+  const brandElementMap: BrandDomMap = {};
+
+  Array.prototype.map.call(elements, (e: HTMLElement) => {
+    if (!e) return;
+
+    const brandElement = e.querySelector(".a-truncate-cut");
+
+    if (!brandElement) return;
+
+    const brandName = brandElement.innerHTML.toLowerCase();
+
+    if (brandElementMap[brandName]) {
+      brandElementMap[brandName].push(e);
+    } else {
+      brandElementMap[brandName] = [e];
+    }
+  });
+
+  if (Object.keys(brandElementMap).length === 0) return;
+
+  return brandElementMap;
+}
+
+/**
+ * Will parse out the marketplace page and return a map of brand names to DOM elements.
+ */
+const getBrandsFromSearchResultsDOM = () => {
   const elements = document.getElementsByClassName("template=SEARCH_RESULTS");
   const brandElementMap: BrandDomMap = {};
 
@@ -41,6 +70,7 @@ const setBoycottDivs = (brandDomMap: BrandDomMap, brandBoycottData: BulkBrandInf
 
   Object.entries(brandDomMap).forEach(([brandName, brandDomElements]) => {
     const uuid = brandBoycottData.accessKeys[brandName];
+
     if (!uuid) return;
 
     brandDomElements.forEach((brandDomElement) => {
@@ -53,7 +83,11 @@ const setBoycottDivs = (brandDomMap: BrandDomMap, brandBoycottData: BulkBrandInf
 }
 
 const fetchBoycottInfo = async () => {
-  const brands = getBrandsFromDOM();
+  let brands = {
+    ...getBrandsFromSearchResultsDOM(),
+    ...getBrandsFromKeepShoppingDOM()
+  };
+
   if (!brands) return;
 
   observer.disconnect();
@@ -66,7 +100,7 @@ const fetchBoycottInfo = async () => {
   })
 }
 
-function resetObserver() {
+function setObserver() {
   observer?.disconnect();
 
   if (observer == null)
@@ -75,11 +109,14 @@ function resetObserver() {
   observer.observe(document, OBSERVER_CONFIG);
 }
 
-resetObserver();
+setTimeout(() => {
+  setObserver();
+}, 3000);
+
 
 chrome.runtime.onMessage.addListener(
   function(message: DOMMessage, sender, sendResponse) {
     if (message.type === DOMMessageTypes.URL_CHANGED) {
-      resetObserver();
+      setObserver();
     }
   });
