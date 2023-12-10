@@ -1,122 +1,57 @@
-import { BulkBrandInfo, DOMMessage, DOMMessageTypes } from '../types';
-import Banner from "../components/Banner";
-import BannerStyle from "../components/BannerStyle";
-
-
-let observer: MutationObserver;
-const OBSERVER_CONFIG = { attributes: true, childList: true, characterData: true, subtree: true };
-
-type BrandDomMap = Record<string, Element[]>;
-
-const getBrandsFromKeepShoppingDOM = () => {
-  const elements = document.getElementsByClassName("a-carousel-card");
-  const brandElementMap: BrandDomMap = {};
-
-  Array.prototype.map.call(elements, (e: HTMLElement) => {
-    if (!e) return;
-
-    const brandElement = e.querySelector(".a-truncate-cut");
-
-    if (!brandElement) return;
-
-    const brandName = brandElement.innerHTML.toLowerCase();
-
-    if (brandElementMap[brandName]) {
-      brandElementMap[brandName].push(e);
-    } else {
-      brandElementMap[brandName] = [e];
-    }
-  });
-
-  if (Object.keys(brandElementMap).length === 0) return;
-
-  return brandElementMap;
-}
+import { DOMMessageTypes } from '../types';
+import { startObserver, stopObserver } from "../utils/observer";
+import { BrandDomMap, setBoycottDivs } from "../utils";
 
 /**
- * Will parse out the marketplace page and return a map of brand names to DOM elements.
+ *
+ * @param elementBrandSelectors - Array of a tuple of selectors to find the brand name
  */
-const getBrandsFromSearchResultsDOM = () => {
-  const elements = document.getElementsByClassName("template=SEARCH_RESULTS");
+const getBrandsFromDOM = (elementBrandSelectors: Array<[string, string]>) => {
   const brandElementMap: BrandDomMap = {};
 
-  Array.prototype.map.call(elements, (e: HTMLElement) => {
-    if (!e) return;
+  elementBrandSelectors.forEach(([elementSelector, brandSelector]) => {
+    const domElements = document.getElementsByClassName(elementSelector);
 
-    const brandElement = e.querySelector(".a-size-base-plus.a-color-base");
+    Array.prototype.map.call(domElements, (e: HTMLElement) => {
+      if (!e) return;
 
-    if (!brandElement) return;
+      const brandElement = e.querySelector(brandSelector);
 
-    const brandName = brandElement.innerHTML.toLowerCase();
-    if (brandElementMap[brandName]) {
-      brandElementMap[brandName].push(e);
-    } else {
-      brandElementMap[brandName] = [e];
-    }
-  });
+      if (!brandElement) return;
 
-  if (Object.keys(brandElementMap).length === 0) return;
+      const brandName = brandElement.innerHTML.toLowerCase();
 
-  return brandElementMap;
-}
-
-/**
- * Will manipulate the DOM to show boycott information
- * @param brandDomMap - A map of brand names to DOM elements
- */
-const setBoycottDivs = (brandDomMap: BrandDomMap, brandBoycottData: BulkBrandInfo) => {
-  const styles = BannerStyle();
-  document.head.appendChild(styles);
-
-  Object.entries(brandDomMap).forEach(([brandName, brandDomElements]) => {
-    const uuid = brandBoycottData.accessKeys[brandName];
-
-    if (!uuid) return;
-
-    brandDomElements.forEach((brandDomElement) => {
-      const brandInfo = brandBoycottData.brands[uuid];
-      const addendum = Banner({ brandName: brandInfo.name });
-      brandDomElement.setAttribute("style", "position: relative;");
-      brandDomElement.appendChild(addendum);
+      if (brandElementMap[brandName]) {
+        brandElementMap[brandName].push(e);
+      } else {
+        brandElementMap[brandName] = [e];
+      }
     });
-  })
+
+    if (Object.keys(brandElementMap).length === 0) return;
+  });
+
+  return brandElementMap;
 }
 
 const fetchBoycottInfo = async () => {
-  let brands = {
-    ...getBrandsFromSearchResultsDOM(),
-    ...getBrandsFromKeepShoppingDOM()
-  };
+  const brandElementMap = getBrandsFromDOM(
+    [
+      ["template=SEARCH_RESULTS", ".a-size-base-plus.a-color-base"],
+      ["a-carousel-card", ".a-truncate-cut"]
+    ]
+  );
 
-  if (!brands) return;
+  if (!brandElementMap) return;
 
-  observer.disconnect();
+  stopObserver();
 
-  const brandNames = Object.keys(brands);
+  const brandNames = Object.keys(brandElementMap);
 
   chrome.runtime.sendMessage({type: DOMMessageTypes.FETCH_BRAND_INFO, brandNames: brandNames}).then((response) => {
     if (!response) return;
-    setBoycottDivs(brands, response);
+    setBoycottDivs(brandElementMap, response);
   })
 }
 
-function setObserver() {
-  observer?.disconnect();
-
-  if (observer == null)
-    observer = new MutationObserver(fetchBoycottInfo);
-
-  observer.observe(document, OBSERVER_CONFIG);
-}
-
-setTimeout(() => {
-  setObserver();
-}, 3000);
-
-
-chrome.runtime.onMessage.addListener(
-  function(message: DOMMessage, sender, sendResponse) {
-    if (message.type === DOMMessageTypes.URL_CHANGED) {
-      setObserver();
-    }
-  });
+startObserver(fetchBoycottInfo);

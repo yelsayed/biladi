@@ -1,3 +1,5 @@
+import { BaseCacheItem } from "../utils/cache";
+
 export enum DOMMessageTypes {
     LANDED_ON_BLOCKED_SITE = 'LANDED_ON_BLOCKED_SITE',
     FETCH_DOMAIN_INFO = 'FETCH_DOMAIN_INFO',
@@ -30,16 +32,12 @@ export type BulkBrandInfo = {
     brands: Record<string, BrandInfo>
 }
 
-export type DomainCacheItem = {
+export interface DomainCacheItem extends BaseCacheItem {
     status: number;
     blocked: boolean;
-    timestamp: string;  // ISO 8601
-    fromCache?: boolean;
     body: BrandInfo | undefined;  // if blocked is true, then this will be defined
 }
 
-export type BrandCacheItem = {
-    timestamp: string;  // ISO 8601
-    fromCache?: boolean;
+export interface BrandCacheItem extends BaseCacheItem {
     body: BrandInfo | undefined;
 }

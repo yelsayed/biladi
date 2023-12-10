@@ -1,5 +1,5 @@
-import { BrandInfo, DOMMessage, DOMMessageTypes } from '../types/';
-import { bulkFetchBrandInformation, fetchDomainInformation } from "../utils";
+import { DomainCacheItem, DOMMessage, DOMMessageTypes } from '../types/';
+import { bulkFetchBrandInformation, fetchDomainInformation } from "../utils/api";
 import Tab = chrome.tabs.Tab;
 
 /**
@@ -7,15 +7,13 @@ import Tab = chrome.tabs.Tab;
  * @param tabInfo
  * @param sendResponse
  */
-const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => async (blockedSiteTuple?: [BrandInfo| undefined, boolean]) => {
-  const [blockedSite, fromCache] = blockedSiteTuple || [undefined, false];
-
-  if (blockedSite) {
-    if (!fromCache) {
+const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => async (blockedSite?: DomainCacheItem | undefined) => {
+  if (blockedSite && blockedSite.body) {
+    if (!blockedSite.fromCache) {
       sendResponse({
         type: DOMMessageTypes.LANDED_ON_BLOCKED_SITE,
-        siteName: blockedSite?.name,
-        description: blockedSite?.description
+        siteName: blockedSite.body.name,
+        description: blockedSite.body.description
       });
     }
 
@@ -36,9 +34,7 @@ chrome.runtime.onMessage.addListener(function (msg: DOMMessage, sender, sendResp
   if (msg.type === DOMMessageTypes.FETCH_BRAND_INFO) {
     if (!msg.brandNames) return;
 
-    console.log("fetching brand info", msg.brandNames);
     bulkFetchBrandInformation(msg.brandNames).then((response) => {
-      console.log("response from bulk fetch", response);
       sendResponse(response);
     });
   }

@@ -1,8 +1,8 @@
 import { htmlToElement } from "../utils";
 
-const BannerStyle = () => (
-  htmlToElement(`
-    <style>
+const BannerStyle = () => {
+  const bannerStyles = htmlToElement(`
+    <style id="biladiBanner">
       .biladi-barred-banner {
         display: flex;
         justify-content: center;
@@ -15,7 +15,6 @@ const BannerStyle = () => (
         backdrop-filter: blur(7px);
         font-size: 14px;
         font-weight: 400;
-        z-index: 10;
         padding: 6px 5px;
         align-items: center;
       }
@@ -30,7 +29,7 @@ const BannerStyle = () => (
       .biladi-barred-banner .__icon {
         background: white;
         padding: 8px;
-        border-radius: 20px;
+        border-radius: 100%;
         position: absolute;
         top: 7px;
         right: 7px;
@@ -46,7 +45,12 @@ const BannerStyle = () => (
         display: inline;
       }
     </style>
-  `)
-);
+  `);
+
+  // Add banner styles to the head if none with the id exists
+  if (!document.getElementById("biladiBanner")) {
+    return document.head.appendChild(bannerStyles);
+  }
+};
 
 export default BannerStyle;

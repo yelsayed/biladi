@@ -9,7 +9,7 @@ const Toaster = ({ name, description }: { name?: string, description: string}) =
       </div>
       <div class="__info">
         <h5 class="__title">
-          🩸 ${name || "This site"} supports Israel.
+          🩸 ${name || "This site"} supports Apartheid.
         </h5>
         ${description && `
           <p class="__subtitle">

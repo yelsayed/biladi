@@ -2,8 +2,8 @@ import { BrandCacheItem, DomainCacheItem } from "../types";
 
 const DEFAULT_TTL = 60 * 60 * 1000; // 1 hour
 
-type BaseCacheItem = {
-  timestamp: string;
+export type BaseCacheItem = {
+  timestamp?: string;
   fromCache?: boolean;
 };
 
@@ -25,13 +25,21 @@ class DomainCache<T extends BaseCacheItem> {
       if (diff > this.ttl) {
         return undefined;
       }
-      return { ...element, fromCache: true };
+      return {
+        ...element,
+        fromCache: true
+      };
     }
     return undefined;
   }
 
-  public set(key: string, value: T): void {
-    this.cache[key] = value;
+  public set(key: string, value: T): T {
+    const val = {
+      ...value,
+      timestamp: new Date().toISOString()
+    };
+    this.cache[key] = val;
+    return val;
   }
 
   public clear(): void {

@@ -29,6 +29,15 @@
       "js": [
         "static/js/amazonScripts.js"
       ]
+    },
+    {
+      "matches": [
+        "https://www.google.com/search*"
+      ],
+      "all_frames": true,
+      "js": [
+        "static/js/googleScripts.js"
+      ]
     }
   ],
   "web_accessible_resources": [

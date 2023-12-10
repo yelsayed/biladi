@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {fetchDomainInformation} from "./utils";
 import styled from "styled-components";
 import "./Global.css";
 import {BrandInfo} from "./types";
+import { fetchDomainInformation } from "./utils/api";
 
 const Container = styled.div`
   text-align: center;
@@ -39,8 +39,8 @@ function App() {
       currentWindow: true
     }, async (tabs) => {
       setIsLoading(true);
-      const [domain, ] = await fetchDomainInformation(tabs[0].url || '');
-      setDomainInfo(domain);
+      const domain = await fetchDomainInformation(tabs[0].url || '');
+      setDomainInfo(domain?.body);
       setIsLoading(false);
     });
   }, [currentUrl]);
@@ -55,7 +55,7 @@ function App() {
                 <img src="/images/cross.svg" alt="Bad"/>
                 <div>
                   <header className="header">
-                    {domainInfo.name} supports Israel.
+                    {domainInfo.name} supports apartheid.
                   </header>
                   <p className="subheader">
                     {domainInfo.description}
@@ -66,7 +66,7 @@ function App() {
               <>
                 <img src="/images/tick.svg" alt="Good"/>
                 <header className="header">
-                  This site does not support Israel.
+                  This site does not support apartheid.
                 </header>
               </>
             )
