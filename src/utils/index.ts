@@ -1,6 +1,6 @@
 import { getDomainWithoutSuffix } from "tldts";
 import { BulkBrandInfo } from "../types";
-import Banner from "../components/Banner";
+import Overlay from "../components/Overlay";
 
 export type BrandDomMap = Record<string, Element[]>;
 
@@ -29,21 +29,27 @@ export const htmlToElement = (html: string): Node => {
 }
 
 /**
- * Will manipulate the DOM to show boycott information
+ * Will manipulate the DOM to show an overlay over the brand to boycott
  * @param brandDomMap - A map of brand names to DOM elements
  * @param brandBoycottData - The boycott data to use to manipulate the DOM
  */
-export const setBoycottDivs = (brandDomMap: BrandDomMap, brandBoycottData: BulkBrandInfo) => {
-  Object.entries(brandDomMap).forEach(([brandName, brandDomElements]) => {
+export const setBoycottOverlays = (brandDomMap: BrandDomMap, brandBoycottData: BulkBrandInfo) => {
+  Object.entries(brandDomMap).forEach(([brandName, brandDomElements], index) => {
     const uuid = brandBoycottData.accessKeys[brandName];
 
     if (!uuid) return;
 
     brandDomElements.forEach((brandDomElement) => {
+      const id = `biladiBanner-${index}`;
       const brandInfo = brandBoycottData.brands[uuid];
-      const addendum = Banner({ brandName: brandInfo.name });
+      const overlay = Overlay(id, brandInfo);
       brandDomElement.setAttribute("style", "position: relative;");
-      brandDomElement.appendChild(addendum);
+      brandDomElement.appendChild(overlay);
+
+      const dismissButton = brandDomElement.querySelector(`#${id} #dismiss`);
+      dismissButton?.addEventListener("click", () => {
+        brandDomElement.querySelector(`#${id}`)?.remove();
+      });
     });
   })
 }

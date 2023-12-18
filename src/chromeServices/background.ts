@@ -8,6 +8,7 @@ import Tab = chrome.tabs.Tab;
  * @param sendResponse
  */
 const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => async (blockedSite?: DomainCacheItem | undefined) => {
+  console.log("blockedSite", blockedSite);
   if (blockedSite && blockedSite.body) {
     if (!blockedSite.fromCache) {
       sendResponse({
@@ -33,6 +34,8 @@ chrome.runtime.onMessage.addListener(function (msg: DOMMessage, sender, sendResp
 
   if (msg.type === DOMMessageTypes.FETCH_BRAND_INFO) {
     if (!msg.brandNames) return;
+
+    console.log("msg.brandNames", msg.brandNames);
 
     bulkFetchBrandInformation(msg.brandNames).then((response) => {
       sendResponse(response);

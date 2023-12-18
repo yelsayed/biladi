@@ -1,5 +1,6 @@
 import { startObserver, stopObserver } from "../utils/observer";
-import { BrandDomMap, getTLDFromSite, setBoycottDivs } from "../utils";
+import { BrandDomMap, getTLDFromSite, setBoycottOverlays } from "../utils";
+import { DOMMessageTypes } from "../types";
 
 const getBrandsFromDOM = () => {
   const els = document.querySelectorAll('a > h3');
@@ -30,6 +31,7 @@ const getBrandsFromDOM = () => {
 }
 
 const fetchBoycottInfo = async () => {
+  console.log("fetching boycott info");
   const brandElementMap = getBrandsFromDOM();
   if (!brandElementMap) return;
 
@@ -37,10 +39,11 @@ const fetchBoycottInfo = async () => {
 
   const brandNames = Object.keys(brandElementMap);
 
-  chrome.runtime.sendMessage({ type: "FETCH_BRAND_INFO", brandNames }).then((response) => {
+  chrome.runtime.sendMessage({ type: DOMMessageTypes.FETCH_BRAND_INFO, brandNames }).then((response) => {
+    console.log("response", response);
     if (!response) return;
 
-    setBoycottDivs(brandElementMap, response);
+    setBoycottOverlays(brandElementMap, response);
   });
 }
 

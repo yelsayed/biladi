@@ -1,25 +1,32 @@
 import { DOMMessageTypes } from '../types';
 import { startObserver, stopObserver } from "../utils/observer";
-import { BrandDomMap, setBoycottDivs } from "../utils";
+import { BrandDomMap, setBoycottOverlays } from "../utils";
 
 /**
  *
  * @param elementBrandSelectors - Array of a tuple of selectors to find the brand name
  */
-const getBrandsFromDOM = (elementBrandSelectors: Array<[string, string]>) => {
+const getBrandsFromDOM = (elementBrandSelectors: Array<[string, string | ((parentElement: Element) => string | null)]>) => {
   const brandElementMap: BrandDomMap = {};
 
   elementBrandSelectors.forEach(([elementSelector, brandSelector]) => {
-    const domElements = document.getElementsByClassName(elementSelector);
+    const domElements = document.querySelectorAll(elementSelector);
+    console.log("dom elements for selector: ", elementSelector, domElements);
 
     Array.prototype.map.call(domElements, (e: HTMLElement) => {
+      let brandName: string | null = null;
       if (!e) return;
 
-      const brandElement = e.querySelector(brandSelector);
+      if (typeof(brandSelector) === "function") {
+        brandName = brandSelector(e);
+        console.log("Brand name retrieved from parent element: ", brandName);
+        if (!brandName) return;
+      } else {
+        const brandElement = e.querySelector(brandSelector);
+        if (!brandElement) return;
 
-      if (!brandElement) return;
-
-      const brandName = brandElement.innerHTML.toLowerCase();
+        brandName = brandElement.innerHTML.toLowerCase();
+      }
 
       if (brandElementMap[brandName]) {
         brandElementMap[brandName].push(e);
@@ -34,11 +41,37 @@ const getBrandsFromDOM = (elementBrandSelectors: Array<[string, string]>) => {
   return brandElementMap;
 }
 
+/**
+ * Used to get the manufacturer from the parent element
+ * @param parentElement
+ */
+const getManufacturerFromParentElement = () => {
+  let manufacturer: string | null = null;
+  const productDetailList = document.querySelectorAll('.a-list-item');
+  if (!productDetailList) return null;
+
+  Array.prototype.map.call(productDetailList, (e: Element) => {
+    const innerLabel = e.querySelector('.a-text-bold');
+    if (!innerLabel) return;
+
+    const hasManufacturerString = innerLabel.innerHTML.toLowerCase().includes("manufacturer");
+    if (!hasManufacturerString) return;
+
+    const nextSiblingString = innerLabel.nextElementSibling?.innerHTML;
+    if (!nextSiblingString) return;
+
+    manufacturer = nextSiblingString.toLowerCase();
+  })
+
+  return manufacturer;
+}
+
 const fetchBoycottInfo = async () => {
   const brandElementMap = getBrandsFromDOM(
     [
-      ["template=SEARCH_RESULTS", ".a-size-base-plus.a-color-base"],
-      ["a-carousel-card", ".a-truncate-cut"]
+      [".s-result-item", ".a-size-base-plus.a-color-base"],
+      [".a-carousel-card", ".a-truncate-cut"],
+      [".a-unordered-list.a-nostyle.a-horizontal.list.maintain-height", getManufacturerFromParentElement]
     ]
   );
 
@@ -50,7 +83,7 @@ const fetchBoycottInfo = async () => {
 
   chrome.runtime.sendMessage({type: DOMMessageTypes.FETCH_BRAND_INFO, brandNames: brandNames}).then((response) => {
     if (!response) return;
-    setBoycottDivs(brandElementMap, response);
+    setBoycottOverlays(brandElementMap, response);
   })
 }
 

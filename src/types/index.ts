@@ -19,11 +19,30 @@ export type DOMMessageResponse = {
     headlines: string[];
 }
 
+export enum SupportTypeColors {
+    I = "#c71224",
+    D = "#f6b26a",
+    B = "#ffe597"
+}
+
+export enum SupportTypeStrings {
+    I = "Founded in apartheid",
+    D = "Directly funds apartheid",
+    B = "Does business in apartheid"
+}
+
+export enum SupportType {
+    I = "Apartheid Founded",
+    D = "Funds Apartheid",
+    B = "Does Business"
+}
+
 export type BrandInfo = {
     id: string,
     domain: string;
     name: string;
     description: string;
+    type: keyof typeof SupportType;
 };
 
 export type BulkBrandInfo = {

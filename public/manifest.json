@@ -23,7 +23,14 @@
     },
     {
       "matches": [
-        "https://www.amazon.com/*"
+        "https://www.amazon.com/*",
+        "https://www.amazon.ca/*",
+        "https://www.amazon.es/*",
+        "https://www.amazon.co.uk/*",
+        "https://www.amazon.fr/*",
+        "https://www.amazon.de/*",
+        "https://www.amazon.it/*",
+        "https://www.amazon.co.jp/*"
       ],
       "all_frames": true,
       "js": [

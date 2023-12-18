@@ -27,7 +27,7 @@ export const fetchDomainInformation = async (href: string | undefined): Promise<
   }
 
   // Use ky to make the request
-  const resp = await ky.get(`${BASE_URL}/brand?brand=${domain}`, {
+  const resp = await ky.get(`${BASE_URL}/brands?brand=${domain}`, {
     throwHttpErrors: false
   });
 
@@ -55,13 +55,13 @@ export const fetchDomainInformation = async (href: string | undefined): Promise<
   // If the response is 200, then the site is blocked
   return domainCacheItem;
 }
+
 export const bulkFetchBrandInformation = async (brandNames: string[]) => {
   const searchParams = new URLSearchParams();
   const fromCache: BulkBrandInfo = {
     accessKeys: {},
     brands: {}
   };
-
 
   brandNames.forEach((brandName) => {
     if (!brandName) return;
@@ -84,7 +84,7 @@ export const bulkFetchBrandInformation = async (brandNames: string[]) => {
     return fromCache;
   }
 
-  const resp = await ky.get(`${BASE_URL}/brand/batch?${searchParams.toString()}`);
+  const resp = await ky.get(`${BASE_URL}/brands/batch?${searchParams.toString()}`);
 
   const brandInfo = await resp.json() as BulkBrandInfo;
 

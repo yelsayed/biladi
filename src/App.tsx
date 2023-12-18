@@ -52,10 +52,10 @@ function App() {
           isLoading ? "Loading..." : (
             domainInfo ? (
               <>
-                <img src="/images/cross.svg" alt="Bad"/>
+                <img src="/images/biladi-logo.svg" alt="Biladi Logo"/>
                 <div>
                   <header className="header">
-                    {domainInfo.name} supports apartheid.
+                    {domainInfo.name} supports Apartheid.
                   </header>
                   <p className="subheader">
                     {domainInfo.description}
