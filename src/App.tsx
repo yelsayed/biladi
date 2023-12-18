@@ -1,8 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import "./Global.css";
-import {BrandInfo} from "./types";
+import { BrandInfo } from "./types";
 import { fetchDomainInformation } from "./utils/api";
+import  SupportTypePill from "./popupComponents/SupportTypePill";
+import Navbar from "./popupComponents/Navbar";
+import BlockInfoList from "./popupComponents/BlockInfoList";
 
 const Container = styled.div`
   text-align: center;
@@ -12,18 +15,26 @@ const Container = styled.div`
     padding: 16px;
     height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
     flex-direction: column;
     gap: 20px;
-
+    
+    .text-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
     .header {
+      font-size: 22px;
       font-weight: 600;
-      font-size: 24px;
+      text-align: left;
+      margin-bottom: 0;
     }
     .subheader {
+      margin: 0;
       font-size: 15px;
-      margin: 7px 0;
+      text-align: left;
     }
   }
 `;
@@ -48,30 +59,34 @@ function App() {
   return (
     <Container>
       <div className="container__inner">
+        <Navbar />
+        <div className="text-wrapper">
         {
           isLoading ? "Loading..." : (
-            domainInfo ? (
+          domainInfo ? (
+            <>
+              <SupportTypePill brandInfo={domainInfo} />
+              <header className="header">
+                🩸 {domainInfo.name} supports Apartheid.
+              </header>
+              <p className="subheader">
+                {domainInfo.description}
+              </p>
+            </>
+          ) : (
               <>
-                <img src="/images/biladi-logo.svg" alt="Biladi Logo"/>
-                <div>
-                  <header className="header">
-                    {domainInfo.name} supports Apartheid.
-                  </header>
-                  <p className="subheader">
-                    {domainInfo.description}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <img src="/images/tick.svg" alt="Good"/>
                 <header className="header">
-                  This site does not support apartheid.
+                  ✅ This site does not support apartheid.
                 </header>
+                <p className="subheader">
+                  Shop ethically online.
+                </p>
+                <BlockInfoList />
               </>
             )
           )
         }
+        </div>
       </div>
     </Container>
   );

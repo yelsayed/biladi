@@ -9,7 +9,7 @@ export enum DOMMessageTypes {
 
 export type DOMMessage = {
     type: DOMMessageTypes;
-    siteName?: string;
+    brandInfo?: BrandInfo;
     description?: string;
     brandNames?: string[];
 }

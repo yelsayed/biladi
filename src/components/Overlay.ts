@@ -9,7 +9,7 @@ const Overlay = (id: string, brandInfo: BrandInfo) => {
 
   return (
     htmlToElement(`
-    <div class="biladi-barred-banner" id="${id}">
+    <div class="biladi-barred-overlay" id="${id}">
       <span class="__text">
         <div class="__support-type">${SupportTypeStrings[type]}</div>
         <div>🩸 ${brandInfo.name} supports Apartheid.</div>

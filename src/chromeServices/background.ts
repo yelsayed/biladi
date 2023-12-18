@@ -13,8 +13,7 @@ const blockedSiteCallback = (tabInfo: Tab | undefined, sendResponse: any) => asy
     if (!blockedSite.fromCache) {
       sendResponse({
         type: DOMMessageTypes.LANDED_ON_BLOCKED_SITE,
-        siteName: blockedSite.body.name,
-        description: blockedSite.body.description
+        domainInfo: blockedSite.body,
       });
     }
 
@@ -34,8 +33,6 @@ chrome.runtime.onMessage.addListener(function (msg: DOMMessage, sender, sendResp
 
   if (msg.type === DOMMessageTypes.FETCH_BRAND_INFO) {
     if (!msg.brandNames) return;
-
-    console.log("msg.brandNames", msg.brandNames);
 
     bulkFetchBrandInformation(msg.brandNames).then((response) => {
       sendResponse(response);

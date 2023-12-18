@@ -1,5 +1,5 @@
 import { startObserver, stopObserver } from "../utils/observer";
-import { BrandDomMap, getTLDFromSite, setBoycottOverlays } from "../utils";
+import { BrandDomMap, getTLDFromSite, setBoycottBanners } from "../utils";
 import { DOMMessageTypes } from "../types";
 
 const getBrandsFromDOM = () => {
@@ -10,7 +10,7 @@ const getBrandsFromDOM = () => {
     if (!parent) return;
 
     // Funny way of doing it but it avoids using explicit class names
-    const container = parent?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement;
+    const container = parent?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement;
     if (!container) return;
 
     const href = parent.getAttribute("href");
@@ -31,7 +31,6 @@ const getBrandsFromDOM = () => {
 }
 
 const fetchBoycottInfo = async () => {
-  console.log("fetching boycott info");
   const brandElementMap = getBrandsFromDOM();
   if (!brandElementMap) return;
 
@@ -40,10 +39,9 @@ const fetchBoycottInfo = async () => {
   const brandNames = Object.keys(brandElementMap);
 
   chrome.runtime.sendMessage({ type: DOMMessageTypes.FETCH_BRAND_INFO, brandNames }).then((response) => {
-    console.log("response", response);
     if (!response) return;
 
-    setBoycottOverlays(brandElementMap, response);
+    setBoycottBanners(brandElementMap, response);
   });
 }
 

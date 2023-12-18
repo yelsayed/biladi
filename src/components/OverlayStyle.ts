@@ -4,10 +4,11 @@ import { SupportType, SupportTypeColors } from "../types";
 const OverlayStyle = (type: keyof typeof SupportType) => {
   const color = SupportTypeColors[type];
   const textColor = type === "I" ? "white" : "black";
+  const styleId = "biladiOverlay";
 
   const bannerStyles = htmlToElement(`
-    <style id="biladiBanner">
-      .biladi-barred-banner {
+    <style id="${styleId}">
+      .biladi-barred-overlay {
         display: flex;
         justify-content: center;
         position: absolute;
@@ -23,7 +24,7 @@ const OverlayStyle = (type: keyof typeof SupportType) => {
         align-items: center;
         z-index: 10;
       }
-      .biladi-barred-banner .__text {
+      .biladi-barred-overlay .__text {
         background: white;
         padding: 10px 15px;
         color: black;
@@ -34,7 +35,7 @@ const OverlayStyle = (type: keyof typeof SupportType) => {
         width: 100%;
         max-width: 300px;
       }
-      .biladi-barred-banner .__text .__support-type {
+      .biladi-barred-overlay .__text .__support-type {
         background: ${color};
         color: ${textColor};
         padding: 10px 15px !important;
@@ -44,7 +45,7 @@ const OverlayStyle = (type: keyof typeof SupportType) => {
         line-height: 14px;
         margin-bottom: 10px !important;
       }
-      .biladi-barred-banner .__icon {
+      .biladi-barred-overlay .__icon {
         background: white;
         padding: 8px;
         border-radius: 100%;
@@ -57,12 +58,12 @@ const OverlayStyle = (type: keyof typeof SupportType) => {
         align-items: center;
         justify-content: center;
       }
-      .biladi-barred-banner .__icon svg {
+      .biladi-barred-overlay .__icon svg {
         width: 20px;
         height: 20px;
         display: inline;
       }
-      .biladi-barred-banner .__cta button {
+      .biladi-barred-overlay .__cta button {
         line-height: 1;
         color: #2a2a2a;
         background: none;
@@ -78,7 +79,7 @@ const OverlayStyle = (type: keyof typeof SupportType) => {
   `);
 
   // Add banner styles to the head if none with the id exists
-  if (!document.getElementById("biladiBanner")) {
+  if (!document.getElementById(styleId)) {
     return document.head.appendChild(bannerStyles);
   }
 };

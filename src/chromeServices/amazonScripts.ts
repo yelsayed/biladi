@@ -11,7 +11,6 @@ const getBrandsFromDOM = (elementBrandSelectors: Array<[string, string | ((paren
 
   elementBrandSelectors.forEach(([elementSelector, brandSelector]) => {
     const domElements = document.querySelectorAll(elementSelector);
-    console.log("dom elements for selector: ", elementSelector, domElements);
 
     Array.prototype.map.call(domElements, (e: HTMLElement) => {
       let brandName: string | null = null;
@@ -19,7 +18,6 @@ const getBrandsFromDOM = (elementBrandSelectors: Array<[string, string | ((paren
 
       if (typeof(brandSelector) === "function") {
         brandName = brandSelector(e);
-        console.log("Brand name retrieved from parent element: ", brandName);
         if (!brandName) return;
       } else {
         const brandElement = e.querySelector(brandSelector);
