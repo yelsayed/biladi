@@ -15,7 +15,7 @@ const SupportTypeStyled = styled.div<{ type: keyof typeof SupportType}>`
 `;
 
 const SupportTypePill: React.FC<{ brandInfo: BrandInfo }> = (props) => {
-  const type = props.brandInfo?.type || "B";
+  const type = props.brandInfo?.type || "BS";
 
   return (
     <SupportTypeStyled type={type}>

@@ -21,20 +21,20 @@ export type DOMMessageResponse = {
 
 export enum SupportTypeColors {
     I = "#c71224",
-    D = "#f6b26a",
-    B = "#ffe597"
+    DS = "#f6b26a",
+    BS = "#ffe597"
 }
 
 export enum SupportTypeStrings {
     I = "Founded in apartheid",
-    D = "Directly funds apartheid",
-    B = "Does business in apartheid"
+    DS = "Directly funds apartheid",
+    BS = "Does business in apartheid"
 }
 
 export enum SupportType {
     I = "Apartheid Founded",
-    D = "Funds Apartheid",
-    B = "Does Business"
+    DS = "Funds Apartheid",
+    BS = "Does Business"
 }
 
 export type BrandInfo = {
